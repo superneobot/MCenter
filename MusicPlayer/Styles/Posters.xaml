@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:vm="clr-namespace:MusicPlayer.ViewModel"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="Poster" TargetType="{x:Type Image}">
+        <Setter Property="Source" Value="{x:Null}" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding PlayingMusic.Local}" Value="True">
+                <Setter Property="Source" Value="{DynamicResource EmptyPoster}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding PlayingMusic.Local}" Value="False">
+                <Setter Property="Source" Value="{Binding PlayingMusic.Poster}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,418 @@
+﻿<controls:BlurryWindow x:Class="MusicPlayer.View.MainPage"
+                       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                       xmlns:wrap="clr-namespace:WpfToolkit.Controls;assembly=VirtualizingWrapPanel"
+                       xmlns:blurry="clr-namespace:BlurryControls;assembly=BlurryControls"
+                       xmlns:local="clr-namespace:MusicPlayer.View"
+                       xmlns:vm="clr-namespace:MusicPlayer.ViewModel"
+                       xmlns:model="clr-namespace:MusicPlayer.Model"
+                       xmlns:controls="clr-namespace:BlurryControls.Controls;assembly=BlurryControls"
+                       xmlns:interactivity="http://schemas.microsoft.com/expression/2010/interactivity"
+                       mc:Ignorable="d"
+                       WindowStartupLocation="CenterScreen"
+                       IsMenuBarVisible="False"
+                       Background="#111"
+                       IsResizable="True"
+                       Height="800" Width="1200">
+    <controls:BlurryWindow.DataContext>
+        <vm:MainViewModel />
+    </controls:BlurryWindow.DataContext>
+    <Border BorderThickness="1" BorderBrush="#444">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="16" />
+                <RowDefinition Height="72" />
+            </Grid.RowDefinitions>
+            <DockPanel x:Name="TopPanel" Grid.Row="0" Background="#111" MouseDown="TopPanel_OnMouseDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="32" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="32" />
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Source="{StaticResource Logo}" />
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding CenterState, StringFormat=Music Player [{0}]}"
+                               Style="{StaticResource Title}" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                        <Button Width="24" Style="{StaticResource  SystemButtons}"
+                                Click="ButtonBase_OnClick" />
+                    </StackPanel>
+                </Grid>
+            </DockPanel>
+            <DockPanel Grid.Row="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <DockPanel x:Name="MenuPanel" Grid.Column="0" Width="200" HorizontalAlignment="Left">
+                        <Grid Background="Transparent" Opacity="1" Margin="6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                                <RowDefinition Height="32" />
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="32" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Row="0" Content="Моя музыка" Style="{StaticResource Controls}"
+                                        Command="{Binding OpenPlayList}" />
+                                <Button Grid.Column="1" Content="+" Style="{StaticResource Controls}" Width="32"
+                                        Command="{Binding AddFiles}" />
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="32" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Row="0" Content="Нравится" Style="{StaticResource Controls}"
+                                        Command="{Binding OpenFavorite}" />
+                                <Button Grid.Column="1" Style="{StaticResource Controls}" Width="32"
+                                        Command="{Binding ReloadFavorite}">
+                                    <Image Source="{StaticResource Reload}" Width="16" />
+                                </Button>
+                            </Grid>
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="32" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Row="0" Content="Поиск" Style="{StaticResource Controls}"
+                                        Command="{Binding OpenSearch}" />
+                            </Grid>
+                            <Grid Grid.Row="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="32" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Row="0" Content="Новинки" Style="{StaticResource Controls}"
+                                        Command="{Binding OpenNew}" />
+                                <Button Grid.Column="1" Style="{StaticResource Controls}" Width="32"
+                                        Command="{Binding ReloadNewMusic}">
+                                    <Image Source="{StaticResource Reload}" Width="16" />
+                                </Button>
+                            </Grid>
+                            <Grid Grid.Row="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="32" />
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Row="0" Content="Популярное" Style="{StaticResource Controls}"
+                                        Command="{Binding OpenPop}" />
+                                <Button Grid.Column="1" Style="{StaticResource Controls}" Width="32"
+                                        Command="{Binding ReloadPopular}">
+                                    <Image Source="{StaticResource Reload}" Width="16" />
+                                </Button>
+                            </Grid>
+
+                        </Grid>
+                    </DockPanel>
+                    <DockPanel Grid.Column="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="40" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBox x:Name="SearchBox" Grid.Row="0" Style="{DynamicResource SearchBox}"
+                                     Visibility="Visible">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter"
+                                                Command="{Binding Search}"
+                                                CommandParameter="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <ListView Grid.Row="1" x:Name="PlayList"
+                                      VerticalAlignment="Stretch"
+                                      ItemsSource="{Binding Content.ItemsSource}"
+                                      SelectedItem="{Binding SelectedMusic}"
+                                      SelectedIndex="{Binding SelectedMusicIndex}"
+                                      Style="{StaticResource PlayList}">
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <wrap:VirtualizingWrapPanel Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal"
+                                                    Width="{Binding ElementName=PlayList, Path=ActualWidth}">
+
+                                            <Grid Width="{Binding ElementName=PlayList, Path=ActualWidth}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="64" />
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition Width="40" />
+                                                    <ColumnDefinition Width="40" />
+                                                    <ColumnDefinition Width="20" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0" Height="54" VerticalAlignment="Center"
+                                                            x:Name="poster_in_list_panel" Background="Transparent">
+                                                    <Grid SnapsToDevicePixels="True">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Image x:Name="poster_image" Source="{Binding Poster}"
+                                                               Width="54"
+                                                               Height="54">
+                                                        </Image>
+                                                        <Button Style="{StaticResource PlayListButtons}"
+                                                                x:Name="play_btn"
+                                                                Click="MakeItemSelected" Visibility="Visible">
+                                                            <interactivity:Interaction.Triggers>
+                                                                <interactivity:EventTrigger EventName="Click">
+                                                                    <interactivity:InvokeCommandAction
+                                                                        Command="{Binding DataContext.PlayFile, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                                                        CommandParameter="{Binding SelectedItem, ElementName=LV}" />
+                                                                </interactivity:EventTrigger>
+                                                            </interactivity:Interaction.Triggers>
+                                                            <Grid Width="44" Height="44">
+                                                                <Image Source="{StaticResource PlaylistPlay}"
+                                                                       x:Name="bg_image" Width="34">
+                                                                </Image>
+                                                                <DockPanel x:Name="visualisation" Width="44"
+                                                                           Height="44"
+                                                                           Background="Transparent">
+                                                                    <Ellipse x:Name="circle" Width="0" Height="0"
+                                                                             Fill="{StaticResource BarColor}"
+                                                                             Margin="0,0,0,0"
+                                                                             RenderTransformOrigin="2.5,2.5">
+                                                                        <Ellipse.RenderTransform>
+                                                                            <RotateTransform Angle="0" />
+                                                                        </Ellipse.RenderTransform>
+                                                                    </Ellipse>
+                                                                </DockPanel>
+                                                            </Grid>
+                                                        </Button>
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding Artist}" Style="{StaticResource Artist}" />
+                                                    <TextBlock Text="{Binding Title}" Style="{StaticResource Title}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" x:Name="fav_panel"
+                                                            VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                    <Button x:Name="add_to_fav"
+                                                            Width="32"
+                                                            Height="32"
+                                                            Click="MakeItemSelected"
+                                                            Style="{StaticResource Favorite}">
+                                                        <interactivity:Interaction.Triggers>
+                                                            <interactivity:EventTrigger EventName="Click">
+                                                                <interactivity:InvokeCommandAction
+                                                                    Command="{Binding DataContext.AddToFavoriteList, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
+                                                            </interactivity:EventTrigger>
+                                                        </interactivity:Interaction.Triggers>
+                                                        <Image Width="16" x:Name="like_state" Source="{x:Null}">
+                                                            <Image.Effect>
+                                                                <DropShadowEffect BlurRadius="5" ShadowDepth="1"
+                                                                    Direction="290" Color="Gold" />
+                                                            </Image.Effect>
+                                                        </Image>
+                                                    </Button>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="3" x:Name="songDuration"
+                                                           Text="{Binding Duration}"
+                                                           Style="{StaticResource Duration}" />
+                                            </Grid>
+                                        </StackPanel>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Local}" Value="True">
+                                                <Setter TargetName="poster_image" Property="Source"
+                                                        Value="{StaticResource EmptyPoster}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsPlay}" Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard x:Name="play_anim">
+                                                        <Storyboard x:Name="play_anim_sb">
+                                                            <DoubleAnimation Storyboard.TargetName="circle"
+                                                                             Storyboard.TargetProperty="(FrameworkElement.Width)"
+                                                                             From="10.0" To="20.0" Duration="0:0:0.25"
+                                                                             AutoReverse="True"
+                                                                             RepeatBehavior="Forever" />
+                                                            <DoubleAnimation Storyboard.TargetName="circle"
+                                                                             Storyboard.TargetProperty="(FrameworkElement.Height)"
+                                                                             From="10.0" To="20.0" Duration="0:0:0.25"
+                                                                             AutoReverse="True"
+                                                                             RepeatBehavior="Forever" />
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </DataTrigger.EnterActions>
+                                                <Setter TargetName="play_btn" Property="Visibility" Value="Hidden" />
+                                                <Setter TargetName="bg_image" Property="Visibility" Value="Hidden" />
+                                                <Setter TargetName="songDuration" Property="Text"
+                                                        Value="{Binding ElementName=CurrentTime, Path=Text}" />
+                                                <Setter TargetName="bg_image" Property="Source"
+                                                        Value="{StaticResource PlaylistPause}" />
+                                                <Setter TargetName="bg_image" Property="Width" Value="37" />
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding IsPlay}" Value="False">
+                                                <DataTrigger.EnterActions>
+                                                    <StopStoryboard BeginStoryboardName="play_anim" />
+                                                </DataTrigger.EnterActions>
+                                                <Setter TargetName="songDuration" Property="Text"
+                                                        Value="{Binding Duration}" />
+                                                <Setter Property="Control.BorderBrush" Value="#111" />
+                                                <Setter Property="Control.BorderThickness" Value="0" />
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding Location}" Value="Local">
+                                                <Setter TargetName="fav_panel" Property="Visibility" Value="Hidden" />
+                                                <!-- <Setter TargetName="download_state" Property="Visibility" Value="Hidden" /> -->
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding Location}" Value="Internet">
+                                                <Setter TargetName="fav_panel" Property="Visibility" Value="Visible" />
+                                                <!-- <Setter TargetName="download" Property="Visibility" Value="Visible" /> -->
+                                                <!-- <Setter TargetName="download" Property="ToolTip" Value="Сохранить" /> -->
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding Liked}" Value="True">
+                                                <Setter TargetName="like_state" Property="Source"
+                                                        Value="{StaticResource Like}" />
+                                                <Setter TargetName="add_to_fav" Property="ToolTip"
+                                                        Value="Удалить из ''Нравится''" />
+                                                <Setter TargetName="add_to_fav" Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Liked}" Value="False">
+                                                <Setter TargetName="like_state" Property="Source"
+                                                        Value="{StaticResource NotLike}" />
+                                                <Setter TargetName="add_to_fav" Property="ToolTip"
+                                                        Value="Добавить в ''Нравится''" />
+                                                <Setter TargetName="add_to_fav" Property="Visibility" Value="Hidden" />
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                                <Setter TargetName="play_btn" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="visualisation" Property="Visibility" Value="Hidden" />
+                                                <Setter TargetName="bg_image" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="songDuration" Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+
+                                            <DataTrigger Binding="{Binding IsPaused}" Value="False">
+                                                <Setter TargetName="play_btn" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="visualisation" Property="Visibility"
+                                                        Value="Visible" />
+                                                <Setter TargetName="bg_image" Property="Visibility" Value="Hidden" />
+                                            </DataTrigger>
+
+                                            <DataTrigger
+                                                Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}"
+                                                Value="True">
+                                                <Setter TargetName="play_btn" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="visualisation" Property="Visibility" Value="Hidden" />
+                                                <Setter TargetName="bg_image" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="songDuration" Property="Visibility" Value="Visible" />
+                                                <Setter TargetName="add_to_fav" Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+
+                                            <DataTrigger
+                                                Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}"
+                                                Value="False">
+                                                <Setter TargetName="songDuration" Property="Visibility" Value="Hidden" />
+                                            </DataTrigger>
+
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsPlay}" Value="True" />
+                                                    <Condition
+                                                        Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}}"
+                                                        Value="False" />
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter TargetName="songDuration" Property="Visibility"
+                                                            Value="Visible" />
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Grid>
+                    </DockPanel>
+                </Grid>
+            </DockPanel>
+            <DockPanel x:Name="SeekerDockPanel" Grid.Row="2">
+                <Grid x:Name="SeekerPanel" VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="5" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="CurrentTime" Grid.Column="0" Style="{StaticResource Time}"
+                               Visibility="Collapsed"
+                               Text="{Binding Time, Mode=TwoWay}">
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="1" Direction="270" />
+                        </TextBlock.Effect>
+                    </TextBlock>
+                    <Slider Grid.Column="1" x:Name="Seeker"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource MiniSeeker}"
+                            Maximum="{Binding Maximum}"
+                            Value="{Binding Value}"
+                            Mouse.MouseMove="seeker_MouseMove"
+                            PreviewMouseDown="seeker_PreviewMouseDown"
+                            PreviewMouseUp="seeker_PreviewMouseUp"
+                            ToolTip="{Binding TimeTip}"
+                            IsMoveToPointEnabled="True">
+                        <Slider.Effect>
+                            <DropShadowEffect BlurRadius="5" ShadowDepth="1" Direction="290" />
+                        </Slider.Effect>
+                    </Slider>
+                    <TextBlock x:Name="TotalTime" Grid.Column="2" Style="{StaticResource Time}"
+                               Visibility="Collapsed"
+                               Text="{Binding Duration}">
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="1" Direction="270" />
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Grid>
+            </DockPanel>
+            <DockPanel x:Name="ControlsPanel" Grid.Row="3">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="204" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="300" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="6">
+                        <Button Style="{StaticResource Controls}" Width="64" Command="{Binding PlayPrev}">
+                            <Image Source="{StaticResource PlaySkipBack}" Width="32" />
+                        </Button>
+                        <Button Style="{StaticResource Controls}" Width="64" Command="{Binding PlayPause}">
+                            <Image Style="{StaticResource PlayButton}" />
+                        </Button>
+                        <Button Style="{StaticResource Controls}" Width="64" Command="{Binding PlayNext}">
+                            <Image Source="{StaticResource PlaySkipNext}" Width="32" />
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" DataContext="{Binding PlayingMusic}">
+                        <Border x:Name="BorderPoster" Width="64" Height="64">
+                            <Image x:Name="PosterImage" Source="{Binding Poster}" Width="64">
+                                <Image.Effect>
+                                    <DropShadowEffect ShadowDepth="1" BlurRadius="5" Color="#111" />
+                                </Image.Effect>
+                            </Image>
+                        </Border>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Artist}" Style="{StaticResource Artist}" />
+                            <TextBlock Text="{Binding Title}" Style="{StaticResource Title}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </DockPanel>
+        </Grid>
+    </Border>
+</controls:BlurryWindow>

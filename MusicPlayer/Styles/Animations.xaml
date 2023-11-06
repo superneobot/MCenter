@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Storyboard x:Key="Collapse">
+        <DoubleAnimation
+            Storyboard.TargetName="MenuPanel"
+            Storyboard.TargetProperty="(DockPanel.Width)" 
+            From="200" To="32"
+            Duration="0:0:0.3"/>
+    </Storyboard>
+    <Storyboard x:Key="Expand">
+        <DoubleAnimation
+            Storyboard.TargetName="MenuPanel"
+            Storyboard.TargetProperty="(DockPanel.Width)" 
+            From="32" To="200"
+            Duration="0:0:0.3"/>
+    </Storyboard>
+</ResourceDictionary>
